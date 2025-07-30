@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultraviolet Proxy Game Launcher</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #181818; color: #fff; }
+    .game-list { display: flex; flex-wrap: wrap; gap: 20px; }
+    .game-card { background: #222; border-radius: 8px; padding: 16px; width: 260px; box-shadow: 0 2px 8px #0006; }
+    .game-card img { width: 100%; border-radius: 6px; }
+    .game-title { font-size: 1.2em; margin: 10px 0 6px; }
+    .game-desc { font-size: 0.95em; margin-bottom: 10px; }
+    .play-btn { background: #4caf50; color: #fff; border: none; padding: 10px 18px; border-radius: 5px; cursor: pointer; font-size: 1em; }
+    .play-btn:hover { background: #388e3c; }
+  </style>
+</head>
+<body>
+  <h1>Play Games via Ultraviolet Proxy</h1>
+  <div class="game-list" id="gameList"></div>
+
+  <script>
+    // Dynamically load games from qweqwe.txt
+    async function getGames() {
+      const res = await fetch('https://raw.githubusercontent.com/MYNAMEINBEAN/games/refs/heads/main/qweqwe.txt');
+      const text = await res.text();
+      // Remove BOM and parse JSON
+      const json = text.trim().replace(/^\uFEFF/, '');
+      let games;
+      try {
+        games = JSON.parse(json);
+      } catch (e) {
+        // Try to fix trailing commas or other issues
+        games = JSON.parse(json.replace(/,\s*([}\]])/g, '$1'));
+      }
+      return games;
+    }
+
+    function encodeUrl(url) {
+      return btoa(url).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    function playGame(gameUrl) {
+      const encodedUrl = encodeUrl(gameUrl);
+      window.open(`/uv/service/${encodedUrl}`, '_blank');
+    }
+
+    function renderGames(games) {
+      const container = document.getElementById('gameList');
+      container.innerHTML = '';
+      games.forEach(game => {
+        // Use thumb8 or thumb3 for image, fallback to a placeholder
+        const imgSrc = game.thumb8 || game.thumb3 || '';
+        const title = game.name || game.title || 'Untitled';
+        const desc = game.description || '';
+        const url = game.url || game.embed || '';
+        const card = document.createElement('div');
+        card.className = 'game-card';
+        card.innerHTML = `
+          <img src="${imgSrc}" alt="${title}">
+          <div class="game-title">${title}</div>
+          <div class="game-desc">${desc}</div>
+          <button class="play-btn" onclick="playGame('${url}')">Play</button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    async function main() {
+      try {
+        const games = await getGames();
+        if (!games || !Array.isArray(games) || games.length === 0) {
+          document.getElementById('gameList').innerHTML = '<div style="color:#fff;font-size:1.2em;">No games found.</div>';
+        } else {
+          renderGames(games);
+        }
+      } catch (err) {
+        document.getElementById('gameList').innerHTML = '<div style="color:#fff;font-size:1.2em;">Failed to load games.<br>If you are running this locally, you may need to use a local server due to browser security (CORS) restrictions.</div>';
+        console.error('Error loading games:', err);
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>

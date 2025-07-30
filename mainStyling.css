@@ -1,0 +1,35 @@
+ h1{color: rgb(102, 0, 0);}
+ h2{color: rgb(102, 41, 0);}
+ h3{color: rgb(5, 102, 0);}
+ h4{color: rgb(0, 41, 102);}
+ h5{color: rgb(65, 0, 102);}
+ 
+ body{background: linear-gradient(rgb(255, 115, 115), rgb(255, 200, 117), rgb(163, 255, 117), rgb(117, 145, 255), rgb(221, 117, 255), rgb(117, 117, 255), rgb(117, 255, 122), rgb(255, 193, 117), rgb(255, 115, 115));}
+body {font-family: arial;}
+
+.button {
+  border: none;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  text-decoration: none;
+  margin: 4px 2px;
+  transition-duration: 0.6s;
+  cursor: pointer;
+}
+
+.button1 {
+  color: blue; 
+}
+
+
+.button2 {
+  color: blue; 
+}
+
+.button1:hover {
+  color: darkgreen;
+}
+.button2:hover {
+  color: darkgreen;
+}

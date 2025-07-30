@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Collection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #181818;
+            color: #fff;
+            margin: 0;
+            padding: 0; /* Adjust padding to accommodate the banner */
+            box-sizing: border-box;
+        }
+        .banner {
+            background-color: #007bff; /* A nice blue color */
+            color: #fff;
+            text-align: center;
+            padding: 8px 0; /* Smaller padding for a "small" banner */
+            font-size: 0.95em;
+            position: sticky; /* Make it stick to the top */
+            top: 0;
+            width: 100%;
+            z-index: 1002; /* Ensure it's above other content but below overlay */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        .banner a {
+            color: #fff;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+        .banner a:hover {
+            color: #e0e0e0;
+        }
+        h1 {
+            text-align: center;
+            margin: 30px 0; /* Adjusted margin for space below banner */
+            color: #4caf50;
+        }
+        .search-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .search-container input {
+            padding: 10px 15px;
+            width: 70%;
+            max-width: 500px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #333;
+            color: #fff;
+            font-size: 1em;
+        }
+        .game-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto 20px auto; /* Added bottom margin */
+        }
+        .game-card {
+            background: #222;
+            border-radius: 8px;
+            padding: 16px;
+            width: 280px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.8);
+        }
+        .game-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        .game-title {
+            font-size: 1.3em;
+            margin: 10px 0 6px;
+            color: #66bb6a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
+        .game-desc {
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            color: #bbb;
+            flex-grow: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+        .no-games-message {
+            color: #fff;
+            font-size: 1.2em;
+            text-align: center;
+            margin-top: 50px;
+            padding: 0 20px; /* Added padding for better readability on small screens */
+        }
+
+        /* Styles for the embedded game overlay */
+        .game-embed-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .game-embed-overlay.active {
+            display: flex;
+        }
+        .game-embed-frame {
+            width: 90%;
+            max-width: 1000px;
+            height: 80%;
+            max-height: 700px;
+            background-color: #000;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+        }
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 2.5em;
+            color: #fff;
+            cursor: pointer;
+            z-index: 1001;
+            transition: color 0.2s;
+        }
+        .close-button:hover {
+            color: #ff6b6b;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .search-container input {
+                width: 90%;
+            }
+            .game-card {
+                width: 90%; /* Make cards take more width on smaller screens */
+                max-width: 300px; /* Limit max width for smaller screens */
+            }
+            .game-embed-frame {
+                width: 95%;
+                height: 85%;
+            }
+            .close-button {
+                top: 10px;
+                right: 10px;
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="banner">
+        Want more games? <a href="https://uv-games-front.vercel.app/1" target="_blank">Click here!</a>
+    </div>
+
+    <h1>Our Game Collection</h1>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search for games..." onkeyup="filterGames()">
+    </div>
+
+    <div class="game-list" id="gameList">
+        </div>
+
+    <div class="game-embed-overlay" id="gameEmbedOverlay">
+        <button class="close-button" id="closeEmbedButton">&times;</button>
+        <iframe id="gameIframe" class="game-embed-frame" src="" frameborder="0" allowfullscreen></iframe>
+    </div>
+
+    <script>
+        let allGames = []; // Store all games globally
+
+        async function getGames() {
+            try {
+                const res = await fetch('https://raw.githubusercontent.com/MYNAMEINBEAN/games/refs/heads/main/qweqwe.txt');
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                const text = await res.text();
+                const json = text.trim().replace(/^\uFEFF/, '');
+                
+                let gamesData;
+                try {
+                    gamesData = JSON.parse(json);
+                } catch (e) {
+                    gamesData = JSON.parse(json.replace(/,\s*([}\]])/g, '$1'));
+                }
+                allGames = gamesData;
+                renderGames(allGames);
+            } catch (err) {
+                const container = document.getElementById('gameList');
+                container.innerHTML = '<div class="no-games-message">Failed to load games. This might be due to network issues (CORS) or a malformed `qweqwe.txt` file. Please check your browser console for details.</div>';
+                console.error('Error loading games:', err);
+            }
+        }
+
+        function renderGames(gamesToRender) {
+            const container = document.getElementById('gameList');
+            container.innerHTML = '';
+
+            if (!gamesToRender || !Array.isArray(gamesToRender) || gamesToRender.length === 0) {
+                container.innerHTML = '<div class="no-games-message">No games found matching your criteria.</div>';
+                return;
+            }
+
+            gamesToRender.forEach(game => {
+                const imgSrc = game.thumb1 || game.thumb3 || 'https://via.placeholder.com/120x120?text=No+Image';
+                const title = game.name || 'Untitled Game';
+                const desc = game.description || 'No description available.';
+                const urlToEmbed = game.url;
+
+                const card = document.createElement('div');
+                card.className = 'game-card';
+                
+                card.addEventListener('click', () => {
+                    embedGame(urlToEmbed);
+                });
+
+                card.innerHTML = `
+                    <img src="${imgSrc}" alt="${title} thumbnail" onerror="this.onerror=null;this.src='https://via.placeholder.com/120x120?text=No+Image';">
+                    <div class="game-title" title="${title}">${title}</div>
+                    <div class="game-desc">${desc}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function embedGame(gameUrl) {
+            const gameIframe = document.getElementById('gameIframe');
+            const gameEmbedOverlay = document.getElementById('gameEmbedOverlay');
+
+            if (gameUrl) {
+                gameIframe.src = gameUrl;
+                gameEmbedOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+            } else {
+                alert('This game does not have a valid URL to embed.');
+            }
+        }
+
+        function closeEmbed() {
+            const gameIframe = document.getElementById('gameIframe');
+            const gameEmbedOverlay = document.getElementById('gameEmbedOverlay');
+
+            gameIframe.src = '';
+            gameEmbedOverlay.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        function filterGames() {
+            const searchInput = document.getElementById('searchInput');
+            const searchTerm = searchInput.value.toLowerCase();
+
+            const filtered = allGames.filter(game => {
+                const gameName = (game.name || '').toLowerCase();
+                const gameDescription = (game.description || '').toLowerCase();
+                const gameCategory = (game.category || '').toLowerCase();
+
+                return gameName.includes(searchTerm) || 
+                       gameDescription.includes(searchTerm) ||
+                       gameCategory.includes(searchTerm);
+            });
+            renderGames(filtered);
+        }
+
+        document.getElementById('closeEmbedButton').addEventListener('click', closeEmbed);
+        document.addEventListener('DOMContentLoaded', getGames);
+    </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html style="font-size:0.83127vw;" lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <link href="mainStyling.css" rel="stylesheet">
+</head>
+<body>
+    <h1>Game Saver</h1>
+    <iframe id="gameSaverFrame" src="https://bvguchefnjimwondhxbygrfhuedijm.github.io/test/gameSaver.html" style="display: none"></iframe>
+    <button id="saveButton">Save</button>
+    <input type="file" id="loadFile" accept=".crazyxyzsave">
+    <button id="loadButton">Load Save</button>
+
+    <script>
+        // Function to save game data
+        document.getElementById('saveButton').addEventListener('click', () => {
+            const iframe = document.getElementById('gameSaverFrame');
+            iframe.contentWindow.postMessage('Save all games', '*');
+        });
+
+        // Listen for messages from the iframe
+        window.addEventListener('message', (event) => {
+            if (event.origin !== 'https://bvguchefnjimwondhxbygrfhuedijm.github.io') {
+                alert("It seems like you aren't on the official website. Please try going to the official website https://bvguchefnjimwondhxbygrfhuedijm.github.io");
+                return;
+            }
+
+            if (event.data.cookies && event.data.storage) {
+                const dataToSave = [{
+            cookies: document.cookie.split('; '),
+            storage: {
+                local: JSON.parse(JSON.stringify(localStorage)),
+                session: JSON.parse(JSON.stringify(sessionStorage))
+            }
+        }, event.data];
+                const blob = new Blob([btoa(JSON.stringify(dataToSave))], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'save.crazyxyzsave';
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        });
+
+        // Function to load game data
+        document.getElementById('loadButton').addEventListener('click', () => {
+            const fileInput = document.getElementById('loadFile');
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const data = JSON.parse(atob(e.target.result));
+                    const iframe = document.getElementById('gameSaverFrame');
+                    iframe.contentWindow.postMessage(data[1], '*');
+                };
+                reader.readAsText(file);
+            } else {
+                alert('Please select a save file.');
+            }
+        });
+    </script>
+</body>
+</html>
