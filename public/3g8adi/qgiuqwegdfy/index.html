@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crazy Stuff - Games</title>
+    
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap"></noscript>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'gaming': ['Orbitron', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        glow: {
+                            'from': { boxShadow: '0 0 20px rgba(59, 130, 246, 0.5)' },
+                            'to': { boxShadow: '0 0 30px rgba(59, 130, 246, 0.8), 0 0 40px rgba(236, 72, 153, 0.5)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Orbitron', sans-serif; }
+        .glass-effect {
+            background: rgba(22, 20, 43, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .gradient-text {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 300% 300%;
+            animation: gradient 5s ease infinite;
+        }
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .game-card:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        /* iframe-overlay styles for full screen and visibility control */
+        .iframe-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw; /* Use viewport width */
+            height: 100vh; /* Use viewport height */
+            background-color: black;
+            z-index: 1000;
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+        }
+        .iframe-overlay.active {
+            display: flex; /* Only display when active */
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 min-h-screen text-white font-gaming">
+    
+    <script>
+        function embed(url) {
+            const iframeContainer = document.getElementById('game-iframe-container');
+            iframeContainer.innerHTML = ''; // Clear previous iframe if any
+
+            const iframe = document.createElement('iframe');
+            iframe.src = url;
+            iframe.loading = 'lazy';
+            // Ensure iframe itself takes up 100% of its parent container
+            iframe.style.cssText = 'border:none; overflow:hidden; width:100%; height:100%;';
+            iframe.allowfullscreen = true;
+
+            iframeContainer.appendChild(iframe);
+            iframeContainer.classList.add('active'); // Show the iframe container using the active class
+        }
+
+        function closeIframe() {
+            const iframeContainer = document.getElementById('game-iframe-container');
+            iframeContainer.innerHTML = ''; // Clear the iframe
+            iframeContainer.classList.remove('active'); // Hide the iframe container
+        }
+
+        function play(gameId) {
+            const isOffline = location.protocol === 'file:' && !navigator.onLine;
+            const baseUrl = isOffline 
+                ? "../crazygamesxyz-assets/Game-Assets/" 
+                : "https://bvguchefnjimwondhxbygrfhuedijm.github.io/test/Assets/";
+            embed(`${baseUrl}${gameId}/index.html`);
+        }
+
+        const games = [
+            { id: '1', name: '1', emoji: '1️⃣', type: 'standard' },
+            { id: '1v1lol', name: '1v1.lol', emoji: '🎯', type: 'standard' },
+            { id: '1v1space', name: '1v1.space', emoji: '🚀', type: 'standard' },
+            { id: '10-minutes-till-dawn', name: '10 Minutes Till Dawn', emoji: '🌇', type: 'standard' },
+            { id: '100ng', name: '100 Player Pong', emoji: '🏓', type: 'standard' },
+            { id: '2048', name: '2048', emoji: '🔢', type: 'standard' },
+            { id: '2048-multitask', name: '2048 Multitask', emoji: '🔢', type: 'standard' },
+            { id: '9007199254740992', name: '9007199254740992', emoji: '🤯', type: 'standard' },
+            { id: 'achievementunlocked', name: 'Achievement Unlocked', emoji: '🏆', type: 'standard' },
+            { id: 'adarkroom', name: 'A Dark Room', emoji: '⬛', type: 'standard' },
+            { id: 'adrenalinechallenge', name: 'Adrenaline Challenge', emoji: '💥', type: 'standard' },
+            { id: 'adventure-drivers', name: 'Adventure Drivers', emoji: '🚗', type: 'standard' },
+            { id: 'ages-of-conflict', name: 'Age of Conflict', emoji: '⚔️', type: 'standard' },
+            { id: 'alienhominid', name: 'Alien Hominid', emoji: '👽', type: 'standard' },
+            { id: 'amidst-the-clouds', name: 'Amidst the Clouds', emoji: '☁️', type: 'standard' },
+            { id: 'among-us', name: 'Among Us', emoji: '👨‍🚀', type: 'standard' },
+            { id: 'angry-sharks', name: 'Angry Sharks', emoji: '🦈', type: 'standard' },
+            { id: 'aquapark-slides', name: 'Aquapark Slides', emoji: '🌊', type: 'standard' },
+            { id: 'avalanche', name: 'Avalanche', emoji: '🏂', type: 'standard' },
+            { id: 'awesometanks2', name: 'Awesome Tanks 2', emoji: '坦克', type: 'standard' },
+            { id: 'backrooms', name: 'Backrooms', emoji: '🚪', type: 'standard' },
+            { id: 'bad-ice-cream', name: 'Bad Ice Cream', emoji: '🍦', type: 'standard' },
+            { id: 'bad-ice-cream-2', name: 'Bad Ice Cream 2', emoji: '🍦', type: 'standard' },
+            { id: 'bad-ice-cream-3', name: 'Bad Ice Cream 3', emoji: '🍦', type: 'standard' },
+            { id: 'baldis-basics', name: "Baldi's Basics", emoji: '📏', type: 'standard' },
+            { id: 'ballistic-chickens', name: 'Ballistic Chickens', emoji: '🐔', type: 'standard' },
+            { id: 'basketball-stars', name: 'Basketball Stars', emoji: '🏀', type: 'standard', isHot: true },
+            { id: 'basketbros-io', name: 'Basketbros.io', emoji: '🏀', type: 'standard' },
+            { id: 'battleforgondor', name: 'Battle for Gondor', emoji: '🏰', type: 'standard' },
+            { id: 'bigredbutton', name: 'Big Red Button', emoji: '🔴', type: 'standard' },
+            { id: 'bitlife', name: 'Bitlife', emoji: '🧑‍🍼', type: 'standard' },
+            { id: 'blacholesquare', name: 'Black Hole Square', emoji: '🕳️', type: 'standard' },
+            { id: 'blackknight', name: 'Black Knight', emoji: '🐴', type: 'standard' },
+            { id: 'bloonstd', name: 'Bloons TD', emoji: '🎈', type: 'standard' },
+            { id: 'bloonstd2', name: 'Bloons TD 2', emoji: '🎈', type: 'standard' },
+            { id: 'bloxors', name: 'Bloxors', emoji: '🧱', type: 'standard' },
+            { id: 'bobtherobber2', name: 'Bob the Robber 2', emoji: '💰', type: 'standard' },
+            { id: 'boxhead2play', name: 'Box Head', emoji: '📦', type: 'standard' },
+            { id: 'boxing-random', name: 'Boxing Random', emoji: '🥊', type: 'standard' },
+            { id: 'breakingthebank', name: 'Breaking the Bank', emoji: '🏦', type: 'standard' },
+            { id: 'btts', name: 'Big Tower Tiny Square', emoji: '🗼', type: 'standard', isHot: true },
+            { id: 'bntts', name: 'Big NEON Tower Tiny Square', emoji: '🗼', type: 'standard', isHot: true },
+            { id: 'burger-and-frights', name: 'Burger and Frights', emoji: '🍔', type: 'standard' },
+            { id: 'cannon-basketball-4', name: 'Cannon Basketball 4', emoji: '🏀', type: 'standard' },
+            { id: 'canyondefense', name: 'Canyon Defense', emoji: '🏜️', type: 'standard' },
+            { id: 'cars-simulator', name: 'Cars Simulator', emoji: '🏎️', type: 'standard' },
+            { id: 'cell-machine', name: 'Cell Machine', emoji: '🔬', type: 'standard' },
+            { id: 'champion-island', name: 'Champion Island', emoji: '🏝️', type: 'standard' },
+            { id: 'championarcher', name: 'Champion Archer', emoji: '🏹', type: 'standard' },
+            { id: 'chill-radio', name: 'Chill Radio', emoji: '📻', type: 'standard' },
+            { id: 'chrome-dino', name: 'Chrome Dino', emoji: '🦖', type: 'standard' },
+            { id: 'circlo', name: 'circlO', emoji: '🔄', type: 'standard' },
+            { id: 'cluster-rush', name: 'Cluster Rush', emoji: '🚚', type: 'standard' },
+            { id: 'cnpingpong', name: 'Table Tennis Ultimate', emoji: '🏓', type: 'standard' },
+            { id: 'connect3', name: 'Connect 3', emoji: '🔵', type: 'standard' },
+            { id: 'cookie-clicker', name: 'Cookie Clicker', emoji: '🍪', type: 'standard', isHot: true },
+            { id: 'core-ball', name: 'Core Ball', emoji: '⚫', type: 'standard' },
+            { id: 'craftmine', name: 'CraftMine', emoji: '⛏️', type: 'standard' },
+            { id: 'creativekillchamber', name: 'Creative Kill Chamber', emoji: '🔪', type: 'standard' },
+            { id: 'crossyroad', name: 'Crossy Road', emoji: '🐔', type: 'standard' },
+            { id: 'csgo-clicker', name: 'CS:GO Clicker', emoji: '🖱️', type: 'standard' },
+            { id: 'ctr', name: 'Cut the Rope', emoji: '🍬', type: 'standard' },
+            { id: 'ctr-holiday', name: 'Cut the Rope Holiday', emoji: '🎄', type: 'standard' },
+            { id: 'ctr-tr', name: 'Cut the Rope Time Travel', emoji: '⏳', type: 'standard' },
+            { id: 'cubefield', name: 'Cubefield', emoji: '🧊', type: 'standard' },
+            { id: 'cupcake2048', name: 'Cupcake 2048', emoji: '🧁', type: 'standard' },
+            { id: 'dante', name: 'Dante', emoji: '😈', type: 'standard' },
+            { id: 'deal-or-no-deal', name: 'Deal or No Deal', emoji: '💼', type: 'standard' },
+            { id: 'death-run-3d', name: 'Death Run 3D', emoji: '💀', type: 'standard' },
+            { id: 'defend-the-tank', name: 'Defend the Tank', emoji: '🛡️', type: 'standard' },
+            { id: 'doctor-acorn2', name: 'Doctor Acorn 2', emoji: '🐿️', type: 'standard' },
+            { id: 'doge2048', name: 'Doge 2048', emoji: '🐶', type: 'standard' },
+            { id: 'DogeMiner', name: 'Doge Miner', emoji: '⛏️', type: 'standard' },
+            { id: 'doodle-jump', name: 'Doodle Jump', emoji: '📝', type: 'standard' },
+            { id: 'doublewires', name: 'Double Wires', emoji: '🕸️', type: 'standard' },
+            { id: 'dragon-vs-bricks', name: 'Dragons vs Bricks', emoji: '🐉', type: 'standard' },
+            { id: 'draw-the-hill', name: 'Draw the Hill', emoji: '✏️', type: 'standard' },
+            { id: 'drive-mad', name: 'Drive Mad', emoji: '🤪', type: 'standard' },
+            { id: 'ducklife1', name: 'Duck Life', emoji: '🦆', type: 'standard' },
+            { id: 'ducklife2', name: 'Duck Life 2', emoji: '🦆', type: 'standard' },
+            { id: 'ducklife3', name: 'Duck Life 3', emoji: '🦆', type: 'standard' },
+            { id: 'ducklife4', name: 'Duck Life 4', emoji: '🦆', type: 'standard' },
+            { id: 'edge-surf', name: "Edge Let's Surf", emoji: '🏄', type: 'standard' },
+            { id: 'edgenotfound', name: 'Edge Not Found', emoji: '🤷', type: 'standard' },
+            { id: 'eel-slap', name: 'Eel Slap', emoji: ' slapping_face', type: 'standard' },
+            { id: 'elasticman', name: 'Elastic Man', emoji: '🙆', type: 'standard' },
+            { id: 'endlesswar3', name: 'Endless War 3', emoji: '⚔️', type: 'standard' },
+            { id: 'escapingtheprison', name: 'Escaping The Prison', emoji: '🏃', type: 'standard' },
+            { id: 'evil-glitch', name: 'Evil Glitch', emoji: '👾', type: 'standard' },
+            { id: 'evolution', name: 'Evolution', emoji: '🐒', type: 'standard' },
+            { id: 'exo', name: 'Exo', emoji: '🤖', type: 'standard' },
+            { id: 'factoryballs', name: 'Factory Balls Forever', emoji: '🏭', type: 'standard' },
+            { id: 'fairsquares', name: 'Fair Squares', emoji: '🔲', type: 'standard' },
+            { id: 'fancypantsadventures', name: 'Fancy Pants Adventures', emoji: '👖', type: 'standard' },
+            { id: 'fake-virus', name: 'Fake Virus', emoji: '💻', type: 'standard' },
+            { id: 'fireboywatergirlforesttemple', name: 'Fireboy and Watergirl', emoji: '🔥💧', type: 'standard' },
+            { id: 'flappy-2048', name: 'Flappy 2048', emoji: '🐦', type: 'standard' },
+            { id: 'flappybird', name: 'Flappy Bird', emoji: '🐦', type: 'standard' },
+            { id: 'flashtetris', name: 'Flash Tetris', emoji: '🧱', type: 'standard' },
+            { id: 'flippy-fish', name: 'Flippy Fish', emoji: '🐠', type: 'standard' },
+            { id: 'fnaw', name: "Five Nights at Winston's", emoji: '🐻', type: 'standard' },
+            { id: 'fridaynightfunkin', name: "Friday Night Funkin'", emoji: '🎤', type: 'standard' },
+            { id: 'froggys-battle', name: "Froggy's Battle", emoji: '🐸', type: 'standard' },
+            { id: 'fruitninja', name: 'Fruit Ninja', emoji: '🍉', type: 'standard' },
+            { id: 'frying-nemo', name: 'Frying Nemo', emoji: '🍳', type: 'standard' },
+            { id: 'game-inside', name: 'Game Inside a Game...', emoji: '🔄', type: 'standard' },
+            { id: 'generic-fishing-game', name: 'Generic Fishing Game', emoji: '🎣', type: 'standard' },
+            { id: 'geodash', name: 'Geometry Dash (Scratch)', emoji: '📐', type: 'standard' },
+            { id: 'georgeandtheprinter', name: 'George and the Printer', emoji: '🖨️', type: 'standard' },
+            { id: 'getaway-shootout', name: 'Getaway Shootout', emoji: '🔫', type: 'standard' },
+            { id: 'gimme-the-airpod', name: 'Gimme the Airpod', emoji: '🎧', type: 'standard' },
+            { id: 'glass-city', name: 'Glass City', emoji: '🏙️', type: 'standard' },
+            { id: 'go-ball', name: 'Go Ball', emoji: '⚽', type: 'standard' },
+            { id: 'goodnight', name: 'GOODNIGHT', emoji: '😴', type: 'standard' },
+            { id: 'google-feud', name: 'Google Feud', emoji: '🤔', type: 'standard' },
+            { id: 'google-snake', name: 'Google Snake', emoji: '🐍', type: 'standard' },
+            { id: 'gravity-soccer', name: 'Gravity Soccer', emoji: '⚽', type: 'standard' },
+            { id: 'greybox', name: 'Grey Box Testing', emoji: '⬜', type: 'standard' },
+            { id: 'grindcraft', name: 'Grind Craft', emoji: '🛠️', type: 'standard' },
+            { id: 'hackertype', name: 'Hacker Typer', emoji: '⌨️', type: 'standard' },
+            { id: 'handshakes', name: 'Handshakes', emoji: '🤝', type: 'standard' },
+            { id: 'happy-hop', name: 'Happy Hop', emoji: '🐰', type: 'standard' },
+            { id: 'hba', name: 'Hover Bot Arena', emoji: '🤖', type: 'standard' },
+            { id: 'helicopter', name: 'Helicopter', emoji: '🚁', type: 'standard' },
+            { id: 'hexempire', name: 'Hex Empire', emoji: '🌍', type: 'standard' },
+            { id: 'HexGL', name: 'HexGL', emoji: '🏎️', type: 'standard' },
+            { id: 'hextris', name: 'Hextris', emoji: ' hexagons', type: 'standard' },
+            { id: 'hungry-lamu', name: 'Hungry Lamu', emoji: '🦙', type: 'standard' },
+            { id: 'idle-breakout', name: 'Idle Breakout', emoji: '🧱', type: 'standard' },
+            { id: 'idle-shark', name: 'Idle Shark', emoji: '🦈', type: 'standard' },
+            { id: 'impossiblequiz', name: 'Impossible Quiz', emoji: '❓', type: 'standard' },
+            { id: 'interactivebuddy', name: 'Interactive Buddy', emoji: '🧑', type: 'standard' },
+            { id: 'jetpack-joyride', name: 'Jetpack Joyride', emoji: '🚀', type: 'standard' },
+            { id: 'just-fall', name: 'JustFall.lol', emoji: '🤸', type: 'standard' },
+            { id: 'just-one-boss', name: 'Just One Boss', emoji: '👹', type: 'standard' },
+            { id: 'kitchen-gun-game', name: 'Kitchen Gun Game', emoji: '🔫', type: 'standard' },
+            { id: 'kittencannon', name: 'Kitten Cannon', emoji: '🐱', type: 'standard' },
+            { id: 'knife-master', name: 'Knife Master', emoji: '🔪', type: 'standard' },
+            { id: 'krunker', name: 'Krunker', emoji: '🎯', type: 'standard' },
+            { id: 'learntofly', name: 'Learn To Fly', emoji: '🐧', type: 'standard' },
+            { id: 'learntofly2', name: 'Learn to Fly 2', emoji: '🐧', type: 'standard' },
+            { id: 'learntofly3', name: 'Learn to Fly 3', emoji: '🐧', type: 'standard' },
+            { id: 'learntofly4', name: 'Learn to Fly 4', emoji: '🦆', type: 'standard' },
+            { id: 'madalin-stunt-cars-2', name: 'Madalin Stunt Cars 2', emoji: '🏎️', type: 'standard' },
+            { id: 'madalin-stunt-cars-3', name: 'Madalin Stunt Cars 3', emoji: '🏎️', type: 'standard' },
+            { id: 'mario', name: 'Mario', emoji: '🍄', type: 'standard' },
+            { id: 'marvinspectrum', name: 'Marvin Spectrum', emoji: '🌈', type: 'standard' },
+            { id: 'matrixrampage', name: 'Matrix Rampage', emoji: ' MATRIX', type: 'standard' },
+            { id: 'meme2048', name: 'Meme 2048', emoji: '😂', type: 'standard' },
+            { id: 'merge-round-racers', name: 'Merge Round Racers', emoji: '🏎️', type: 'standard' },
+            { id: 'mineblocks', name: 'Mine Blocks', emoji: '🧱', type: 'standard' },
+            { id: 'minecraft-15', name: 'Eaglercraft 1.5', emoji: '🧱', type: 'standard' },
+            { id: 'minecraft-18', name: 'Eaglercraft 1.8', emoji: '🧱', type: 'standard' },
+            { id: 'minecraft-classic', name: 'Minecraft Classic', emoji: '🧱', type: 'standard' },
+            { id: 'minecraftbeta', name: 'Minecraft Classic Hacks', emoji: '🧱', type: 'standard' },
+            { id: 'minesweeper', name: 'Minesweeper', emoji: '💣', type: 'standard' },
+            { id: 'miniputt', name: 'Mini-putt', emoji: '⛳', type: 'standard' },
+            { id: 'missiles', name: 'Missiles', emoji: '🚀', type: 'standard' },
+            { id: 'motox3m', name: 'MotoX3M', emoji: '🏍️', type: 'standard' },
+            { id: 'motox3m2', name: 'MotoX3M 2', emoji: '🏍️', type: 'standard' },
+            { id: 'motox3m-pool', name: 'MotoX3M Pool', emoji: '🏍️', type: 'standard' },
+            { id: 'motox3m-spooky', name: 'MotoX3M Spooky', emoji: '🏍️', type: 'standard' },
+            { id: 'motox3m-winter', name: 'MotoX3M Winter', emoji: '🏍️', type: 'standard' },
+            { id: 'my-rusty-submarine', name: 'My Rusty Submarine', emoji: ' submarine', type: 'standard' },
+            { id: 'n-gon', name: 'n-gon', emoji: '📐', type: 'standard' },
+            { id: 'ninja', name: 'Ninja', emoji: '🥷', type: 'standard' },
+            { id: 'ninjavsevilcorp', name: 'Ninja vs Evil Corp', emoji: '🥷', type: 'standard' },
+            { id: 'noob-steve-parkour', name: 'Noob Steve Parkour', emoji: '🧱', type: 'standard' },
+            { id: 'ns-shaft', name: 'NS-Shaft', emoji: '🔻', type: 'standard' },
+            { id: 'nsresurgence', name: 'Neon Square Resurgence', emoji: '🟩', type: 'standard' },
+            { id: 'OfflineParadise', name: 'Offline Paradise', emoji: '🏝️', type: 'standard' },
+            { id: 'om-bounce', name: 'Om Nom Bounce', emoji: '🍬', type: 'standard' },
+            { id: 'ovo', name: 'OvO', emoji: '🥚', type: 'standard' },
+            { id: 'pandemic2', name: 'Pandemic 2', emoji: '☣️', type: 'standard' },
+            { id: 'papasburgeria', name: "Papa's Burgeria", emoji: '🍔', type: 'standard' },
+            { id: 'papaspizzaria', name: "Papa's Pizzaria", emoji: '🍕', type: 'standard' },
+            { id: 'paperio2', name: 'Paper.io 2', emoji: '📄', type: 'standard' },
+            { id: 'papery-planes', name: 'Papery Planes', emoji: '✈️', type: 'standard' },
+            { id: 'particle-clicker', name: 'Particle Clicker', emoji: '⚛️', type: 'standard' },
+            { id: 'pingu', name: 'Pingu', emoji: '🐧', type: 'local', url: 'pingu.html' },
+            { id: 'pixel-gun-survival', name: 'Pixel Gun Survival', emoji: '🔫', type: 'standard' },
+            { id: 'polybranch', name: 'PolyBranch', emoji: '🌳', type: 'standard' },
+            { id: 'popcat-classic', name: 'POPCAT CLASSIC', emoji: '😺', type: 'standard' },
+            { id: 'portalflash', name: 'Portal (Flash)', emoji: '🌀', type: 'standard' },
+            { id: 'precision-client', name: 'Precision Client (Eaglercraft)', emoji: '🎯', type: 'standard' },
+            { id: 'protektor', name: 'Protektor', emoji: '🛡️', type: 'standard' },
+            { id: 'push-the-square', name: 'Push The Square', emoji: '➡️', type: 'standard' },
+            { id: 'push-your-luck', name: 'Push Your Luck', emoji: '🍀', type: 'standard' },
+            { id: 'rabbit-samurai', name: 'Rabbit Samurai', emoji: '🐰', type: 'standard' },
+            { id: 'rabbit-samurai2', name: 'Rabbit Samurai 2', emoji: '🐰', type: 'standard' },
+            { id: 'resent-client', name: 'Resent Client (Eaglercraft)', emoji: '🧱', type: 'standard' },
+            { id: 'retro-bowl', name: 'Retro Bowl', emoji: '🏈', type: 'standard', isHot: true },
+            { id: 'riddleschool', name: 'Riddle School 1', emoji: '🏫', type: 'standard' },
+            { id: 'riddleschool2', name: 'Riddle School 2', emoji: '🏫', type: 'standard' },
+            { id: 'riddleschool3', name: 'Riddle School 3', emoji: '🏫', type: 'standard' },
+            { id: 'riddleschool4', name: 'Riddle School 4', emoji: '🏫', type: 'standard' },
+            { id: 'riddleschool5', name: 'Riddle School 5', emoji: '🏫', type: 'standard' },
+            { id: 'riddletransfer', name: 'Riddle School Transfer 1', emoji: '🏫', type: 'standard' },
+            { id: 'riddletransfer2', name: 'Riddle School Transfer 2', emoji: '🏫', type: 'standard' },
+            { id: 'rolling-forests', name: 'Rolling Forests', emoji: '🌲', type: 'standard' },
+            { id: 'rolly-vortex', name: 'Rolly Vortex', emoji: '🌀', type: 'standard' },
+            { id: 'rooftop-snipers', name: 'Rooftop Snipers', emoji: '🔫', type: 'standard' },
+            { id: 'ruffle', name: 'Ruffle Emulator', emoji: '🕹️', type: 'standard' },
+            { id: 'sandboxels', name: 'Sandboxels', emoji: '⏳', type: 'standard' },
+            { id: 'santy-is-home', name: 'Santy is Home', emoji: '🎅', type: 'standard' },
+            { id: 'sand-game', name: 'Sand Game', emoji: '🏖️', type: 'standard' },
+            { id: 'scrapmetal', name: 'Scrap Metal 3', emoji: '🔩', type: 'standard' },
+            { id: 'shellshockers', name: 'Shellshockers', emoji: '🥚', type: 'standard' },
+            { id: 'shotinthedark', name: 'Shot in the Dark', emoji: '🎯', type: 'standard' },
+            { id: 'shuttledeck', name: 'SHUTTLEDECK', emoji: '🚀', type: 'standard' },
+            { id: 'sky-car-stunt', name: 'Sky Car Stunt', emoji: '🚗', type: 'standard' },
+            { id: 'sleepingbeauty', name: 'Sleeping Beauty', emoji: '😴', type: 'standard' },
+            { id: 'slime-rush-td', name: 'Slime Rush TD', emoji: '🦠', type: 'standard' },
+            { id: 'slope', name: 'Slope', emoji: '🏔️', type: 'standard', isHot: true },
+            { id: 'slope-2', name: 'Slope 2', emoji: '🏔️', type: 'standard' },
+            { id: 'slope-ball', name: 'Slope Ball', emoji: '⚽', type: 'standard' },
+            { id: 'sm64', name: 'Super Mario 64', emoji: '🍄', type: 'standard' },
+            { id: 'smashkarts', name: 'Smash Carts', emoji: '🛒', type: 'standard' },
+            { id: 'smokingbarrels', name: 'Smoking Barrels', emoji: '🔫', type: 'standard' },
+            { id: 'snowbattle', name: 'Snowbattle', emoji: '❄️', type: 'standard' },
+            { id: 'soccer-random', name: 'Soccer Random', emoji: '⚽', type: 'standard' },
+            { id: 'soccer-skills', name: 'Soccer Skills Euro Cup', emoji: '⚽', type: 'standard' },
+            { id: 'soldier-legend', name: 'Soilder Legend', emoji: '🎖️', type: 'standard' },
+            { id: 'solitaire', name: 'Solitare', emoji: '🃏', type: 'standard' },
+            { id: 'sort-the-court', name: 'Sort The Court', emoji: '👑', type: 'standard' },
+            { id: 'soundboard', name: 'Soundboard', emoji: '🔊', type: 'standard' },
+            { id: 'space-company', name: 'Space Company', emoji: '🚀', type: 'standard' },
+            { id: 'spacegarden', name: 'Space Garden', emoji: '🌱', type: 'standard' },
+            { id: 'spinningrat', name: 'Spinning Rat', emoji: '🐀', type: 'standard' },
+            { id: 'stack', name: 'Stack', emoji: '🏗️', type: 'standard' },
+            { id: 'stack-bump-3d', name: 'Stack Bump 3D', emoji: '🏗️', type: 'standard' },
+            { id: 'starve', name: 'Starve.io', emoji: '🔥', type: 'standard' },
+            { id: 'station-141', name: 'Station 141', emoji: '🚉', type: 'standard' },
+            { id: 'stealingthediamond', name: 'Stealing The Diamond', emoji: '💎', type: 'standard' },
+            { id: 'stick-archers', name: 'Stick Archers', emoji: '🏹', type: 'standard' },
+            { id: 'stick-duel-battle', name: 'Stick Duel Battle', emoji: '🤺', type: 'standard' },
+            { id: 'stick-merge', name: 'Stick Merge', emoji: '🤺', type: 'standard' },
+            { id: 'stickman-boost', name: 'Stickman Boost', emoji: '🤺', type: 'standard' },
+            { id: 'stickman-golf', name: 'Stickman Golf', emoji: '⛳', type: 'standard' },
+            { id: 'stickman-hook', name: 'Stickman Hook', emoji: '🪝', type: 'standard' },
+            { id: 'Stickman-Survival', name: 'Stickman Survival', emoji: '🤺', type: 'standard' },
+            { id: 'stickwar', name: 'Stick War', emoji: '🤺', type: 'standard' },
+            { id: 'stormthehouse2', name: 'Storm The House 2', emoji: '🏠', type: 'standard' },
+            { id: 'subway-surfers', name: 'Subway Surfers', emoji: '🏄', type: 'standard', isHot: true },
+            { id: 'subway-surfers-ny', name: 'Subway Surfers New York', emoji: '🗽', type: 'standard' },
+            { id: 'superhot', name: 'Superhot', emoji: '🔥', type: 'standard' },
+            { id: 'supermarioconstruct', name: 'Super Mario Constuct', emoji: '🍄', type: 'standard' },
+            { id: 'surviv', name: 'Surviv.io', emoji: '🎯', type: 'standard' },
+            { id: 'sushi-unroll', name: 'Sushi unROLL', emoji: '🍣', type: 'standard' },
+            { id: 'swerve', name: 'Swerve', emoji: '🚗', type: 'standard' },
+            { id: 'synesthesia', name: 'Synesthesia', emoji: '🎶', type: 'standard' },
+            { id: 'tactical-weapon-pack-2', name: 'Tactical Weapon Pack 2', emoji: '🔫', type: 'standard' },
+            { id: 'tacticalassasin2', name: 'Tactical Assassin 2', emoji: '🎯', type: 'standard' },
+            { id: 'tank-trouble-2', name: 'Tank Trouble 2', emoji: '坦克', type: 'standard' },
+            { id: 'tanuki-sunset', name: 'Tanuki Sunset', emoji: '🦝', type: 'standard' },
+            { id: 'temple-run-2', name: 'Temple Run 2', emoji: '🏃', type: 'standard', isHot: true },
+            { id: 'thebattle', name: 'The Battle', emoji: '⚔️', type: 'standard' },
+            { id: 'the-final-earth', name: 'The Final Earth', emoji: '🌍', type: 'standard' },
+            { id: 'the-hotel', name: 'The Hotel', emoji: '🏨', type: 'standard' },
+            { id: 'theheist', name: 'The Heist', emoji: '💰', type: 'standard' },
+            { id: 'there-is-no-game', name: 'There Is No Game', emoji: '🚫', type: 'standard' },
+            { id: 'thisistheonlylevel', name: 'This Is The Only Level', emoji: '🐘', type: 'standard' },
+            { id: 'tiny-fishing', name: 'Tiny Fishing', emoji: '🎣', type: 'standard' },
+            { id: 'tiny-islands', name: 'Tiny Islands', emoji: '🏝️', type: 'standard' },
+            { id: 'tosstheturtle', name: 'Toss The Turtle', emoji: '🐢', type: 'standard' },
+            { id: 'townscaper', name: 'Townscaper', emoji: '🏘️', type: 'standard' },
+            { id: 'tube-jumpers', name: 'Tube Jumpers', emoji: '🤸', type: 'standard' },
+            { id: 'tunnel-rush', name: 'Tunnel Rush', emoji: '🌀', type: 'standard' },
+            { id: 'tv-static', name: 'TV Static', emoji: '📺', type: 'standard' },
+            { id: 'twitch-tetris', name: 'Twitch Tetris', emoji: '🧱', type: 'standard' },
+            { id: 'veloce', name: 'VELOCE', emoji: '🏎️', type: 'standard' },
+            { id: 'vex3', name: 'Vex 3', emoji: '🤸', type: 'standard' },
+            { id: 'vex4', name: 'Vex 4', emoji: '🤸', type: 'standard' },
+            { id: 'vex5', name: 'Vex 5', emoji: '🤸', type: 'standard' },
+            { id: 'vex6', name: 'Vex 6', emoji: '🤸', type: 'standard', isHot: true },
+            { id: 'vex7', name: 'Vex 7', emoji: '🤸', type: 'standard' },
+            { id: 'waterworks', name: 'Waterworks!!', emoji: '💧', type: 'standard' },
+            { id: 'wallsmash', name: 'Wall Smash', emoji: '🧱', type: 'standard' },
+            { id: 'weavesilk', name: 'Weave Silk', emoji: '🕸️', type: 'standard' },
+            { id: 'webgl-fluid-simulation', name: 'WebGL Fluid Sim', emoji: '🌊', type: 'standard' },
+            { id: 'webretro', name: 'Webretro', emoji: '🕹️', type: 'standard' },
+            { id: 'win-the-whitehouse', name: 'Win the Whitehouse', emoji: '🏛️', type: 'standard' },
+            { id: 'wolf3d', name: 'Wolfenstein 3D', emoji: '🐺', type: 'standard' },
+            { id: 'wordle', name: 'Wordle', emoji: '📝', type: 'standard' },
+            { id: 'worlds-hardest-game', name: "World's Hardest Game", emoji: '🟥', type: 'standard' },
+            { id: 'worlds-hardest-game-2', name: "World's Hardest Game 2", emoji: '🟥', type: 'standard' },
+            { id: 'x-trial-racing', name: 'X Trial Racing', emoji: '🏍️', type: 'standard' },
+            { id: 'xx142-b2exe', name: 'xx142-b2exe', emoji: '👾', type: 'standard' },
+            { id: 'yoshifabrication', name: "Yoshi's Fabrication Station", emoji: '🦖', type: 'standard' },
+            { id: 'you-are-bezos', name: 'You Are Jeff Bezos', emoji: '💰', type: 'standard' },
+            { id: 'zombs-royale', name: 'Zombs Royale', emoji: '🧟', type: 'standard' },
+            { id: 'gd4-6', name: 'Geometry Dash Levels 4-6', emoji: '📐', type: 'local', url: 'Geometry Dash Levels 4-6.html' },
+            { id: 'gd7-8', name: 'Geometry Dash Levels 7-8', emoji: '📐', type: 'local', url: 'Geometry Dash Levels 7-8.html' },
+            { id: 'gd9-13', name: 'Geometry Dash Levels 9-13', emoji: '📐', type: 'local', url: 'Geometry Dash Levels 9-13.html' },
+            { id: 'gd14-15', name: 'Geometry Dash Levels 14-15', emoji: '📐', type: 'local', url: 'Geometry Dash Levels 14-15.html' },
+            { id: 'gd16-21', name: 'Geometry Dash Levels 16-21', emoji: '📐', type: 'local', url: 'Geometry Dash Levels 16-21.html' },
+            { id: 'gd-meltdown', name: 'Geometry Dash Meltdown', emoji: '📐', type: 'local', url: 'Geometry Dash Meltdown.html' },
+            { id: 'gd-subzero', name: 'Geometry Dash Subzero', emoji: '📐', type: 'local', url: 'Geometry Dash Subzero.html' },
+            { id: 'swf', name: 'Extra Games (SWF)', emoji: '🕹️', type: 'local', url: '../swf-files/index.html' },
+            { id: 'vpn', name: 'Special VPN (Fixing)', emoji: '🌐', type: 'local', url: 'vpn.html' }
+        ];
+
+        function createGameButton(game, isFeatured = false) {
+            const button = document.createElement('button');
+            
+            let action;
+            if (game.type === 'local') {
+                action = `embed('${game.url}')`;
+            } else {
+                action = `play('${game.id}')`;
+            }
+
+            button.setAttribute('onclick', action);
+            button.setAttribute('aria-label', `Play ${game.name}`);
+            
+            if (isFeatured) {
+                button.className = 'game-card glass-effect rounded-2xl p-6 text-left cursor-pointer transition-all duration-300';
+                button.innerHTML = `
+                    <h3 class="text-2xl font-bold mb-3 text-cyan-400">${game.emoji} ${game.name}</h3>
+                    <p class="text-gray-300 mb-4 adjustable-text">A fan favorite! Click to play.</p>
+                    <div class="bg-gradient-to-r from-green-500 to-blue-600 text-white px-4 py-2 rounded-lg inline-block font-semibold">
+                        ${game.isHot ? 'HOT GAME 🔥' : 'PLAY NOW'}
+                    </div>
+                `;
+            } else {
+                button.className = 'game-card text-left glass-effect rounded-xl p-3 hover:bg-gradient-to-r hover:from-cyan-500/20 hover:to-blue-500/20 transition-all duration-300 flex items-center space-x-3 relative';
+                let hotIndicator = game.isHot ? `<span class="text-xs text-red-400 font-bold absolute top-1 right-2 animate-pulse">HOT</span>` : '';
+                button.innerHTML = `
+                    <div class="text-2xl">${game.emoji}</div>
+                    <div class="flex-1">
+                        <div class="font-semibold text-sm">${game.name}</div>
+                    </div>
+                    ${hotIndicator}
+                `;
+            }
+            return button;
+        }
+
+        function renderGames() {
+            const featuredContainer = document.getElementById('featured-games-grid');
+            const allGamesContainer = document.getElementById('all-games-grid');
+            const gameCountSpan = document.getElementById('game-count');
+
+            if (!featuredContainer || !allGamesContainer || !gameCountSpan) return;
+
+            featuredContainer.innerHTML = '';
+            allGamesContainer.innerHTML = '';
+            
+            gameCountSpan.textContent = games.length;
+
+            games.sort((a, b) => a.name.localeCompare(b.name));
+
+            const featuredGames = games.filter(g => g.isHot).slice(0, 6);
+
+            featuredGames.forEach(game => {
+                featuredContainer.appendChild(createGameButton(game, true));
+            });
+
+            games.forEach(game => {
+                allGamesContainer.appendChild(createGameButton(game, false));
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderGames();
+        });
+    </script>
+
+    <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div class="absolute -top-4 -left-4 w-72 h-72 bg-purple-400 rounded-full opacity-10 animate-pulse-slow"></div>
+        <div class="absolute top-1/2 -right-4 w-96 h-96 bg-blue-400 rounded-full opacity-10 animate-pulse"></div>
+        <div class="absolute -bottom-8 left-1/2 w-80 h-80 bg-pink-400 rounded-full opacity-10 animate-pulse-slow"></div>
+    </div>
+
+    <header class="relative text-center py-16 px-4">
+        <h1 class="text-6xl md:text-8xl font-bold gradient-text mb-6 animate-float">
+            CRAZY STUFF GAMES
+        </h1>
+        <p class="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto leading-relaxed adjustable-text">
+            Discover hundreds of amazing games!
+        </p>
+    </header>
+
+    <main id="games" class="relative max-w-7xl mx-auto px-4 mb-16">
+        <div class="glass-effect rounded-3xl p-8">
+            <h2 class="text-4xl font-bold mb-8 text-center gradient-text adjustable-text">
+                🎮 GAMES COLLECTION
+            </h2>
+            
+            <h3 class="text-2xl font-bold mb-4 text-cyan-400 adjustable-text">Featured & Hot Games 🔥</h3>
+            <div id="featured-games-grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                </div>
+
+            <div class="text-center">
+                <button onclick="document.getElementById('all-games-container').classList.toggle('hidden')" 
+                        class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 animate-glow">
+                    View All Games (<span id="game-count">0</span>)
+                </button>
+            </div>
+
+            <div id="all-games-container" class="hidden mt-12">
+                <h3 class="text-2xl font-bold mb-4 text-cyan-400 adjustable-text">Full Library</h3>
+                <div id="all-games-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="relative max-w-6xl mx-auto px-4 pb-16">
+        <div class="glass-effect rounded-3xl p-8 text-center">
+            <h3 class="text-2xl font-bold mb-6 gradient-text adjustable-text">
+                💝 THANK YOU!
+            </h3>
+            <p class="text-gray-300 leading-relaxed max-w-4xl mx-auto mb-6 adjustable-text">
+                Thank you for playing these games! 🌟
+            </p>
+            <div class="text-6xl animate-bounce">🎮</div>
+        </div>
+    </footer>
+
+    <div id="game-iframe-container" class="iframe-overlay">
+        <button onclick="closeIframe()" class="absolute top-4 right-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full z-20">
+            Close Game
+        </button>
+        </div>
+
+</body>
+</html>
